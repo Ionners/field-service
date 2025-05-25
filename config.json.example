@@ -20,7 +20,7 @@
     "internal_service": {
         "user": {
             "host": "https://localhost:8001",
-            "signatureKey": "FlpQM6yqg90hJ2CssQwE"
+            "signatureKey": ""
         }
     },
     "gcsType" :"",
