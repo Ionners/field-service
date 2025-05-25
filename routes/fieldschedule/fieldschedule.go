@@ -34,10 +34,10 @@ func (f *FieldScheduleRoute) Run() {
 
 	// Middleware optional token (boleh tidak login), AuthenticateWithoutToken
 
-	// 🛣️ [GET] Endpoint untuk mendapatkan semua field schedule tanpa pagination
-	group.GET("", middlewares.AuthenticateWithoutToken(), f.controller.GetFieldSchedule().GetAllByFieldIDAndDate)
+	// 🛣️ [GET] Endpoint untuk mendapatkan semua field schedule berdasarkan ID dan tanggal
+	group.GET("/lists/:uuid", middlewares.AuthenticateWithoutToken(), f.controller.GetFieldSchedule().GetAllByFieldIDAndDate)
 	// 🛣️ [GET] Endpoint untuk update status fieldSchedule
-	group.PATCH("", middlewares.AuthenticateWithoutToken(), f.controller.GetFieldSchedule().UpdateStatus)
+	group.PATCH("/status", middlewares.AuthenticateWithoutToken(), f.controller.GetFieldSchedule().UpdateStatus)
 
 	// 🔐 Middleware wajib login untuk semua route di bawah ini
 	group.Use(middlewares.Authenticate())
@@ -52,6 +52,13 @@ func (f *FieldScheduleRoute) Run() {
 	}, f.client),
 		f.controller.GetFieldSchedule().GetAllWithPagination)
 
+	// 🛣️ [GET] Endpoint untuk mendapatkan field schedule berdasarkan UUID
+	group.GET("/:uuid", middlewares.CheckRole([]string{
+		constants.Admin,
+		constants.Customer,
+	}, f.client),
+		f.controller.GetFieldSchedule().GetByUUID)
+
 	// ➕ [POST] Endpoint untuk membuat field schedule baru
 	// Middleware CheckRole untuk memeriksa role user
 	// Hanya role Admin yang bisa mengakses endpoint ini
@@ -65,13 +72,6 @@ func (f *FieldScheduleRoute) Run() {
 		constants.Admin,
 	}, f.client),
 		f.controller.GetFieldSchedule().GenerateScheduleForOneMonth)
-
-	// 🛣️ [GET] Endpoint untuk mendapatkan field schedule berdasarkan UUID
-	group.GET("/:uuid", middlewares.CheckRole([]string{
-		constants.Admin,
-		constants.Customer,
-	}, f.client),
-		f.controller.GetFieldSchedule().GetByUUID)
 
 	// 🛣️ [PUT] Endpoint untuk upate data berdasarkan uuid
 	// Middleware CheckRole untuk memeriksa role user

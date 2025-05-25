@@ -40,8 +40,8 @@ func (f *FieldRepository) FindAllWithPagination(
 		total  int64
 	)
 
-	fmt.Println("🔍 [DEBUG-REPOSITORIES] Sort Column:", *param.SortColumn)
-	fmt.Println("🔍 [DEBUG-REPOSITORIES] Sort Order:", *param.SortOrder)
+	fmt.Println("🔍 [DEBUG-REPOSITORIES] Sort Column:", param.SortColumn)
+	fmt.Println("🔍 [DEBUG-REPOSITORIES] Sort Order:", param.SortOrder)
 	if param.SortColumn != nil {
 		fmt.Println("🔍 [DEBUG-REPOSITORIES] Sort Column ada, menggunakan:", *param.SortColumn, *param.SortOrder)
 		sort = fmt.Sprintf("%s %s", *param.SortColumn, *param.SortOrder)

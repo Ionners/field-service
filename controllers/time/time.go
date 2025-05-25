@@ -1,12 +1,15 @@
 package controllers
 
 import (
+	errValidation "field-service/common/error"
 	"field-service/common/response"
 	"field-service/domain/dto"
 	"field-service/services"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 )
 
 type TimeController struct {
@@ -71,15 +74,9 @@ func (t *TimeController) GetByUUID(c *gin.Context) {
 func (t *TimeController) Create(c *gin.Context) {
 	// 🧾 Step 1: Siapkan struct request untuk menampung input dari client (body JSON)
 	var request dto.TimeRequest
-
-	// 🧲 Step 2: (DIHANDLE DI SERVICE) Ambil data dari body JSON dan bind ke struct request
-	// 📌 Catatan: Binding dilakukan langsung di dalam service, bukan di controller
-	// Pastikan service melakukan binding + validasi, karena controller tidak melakukannya
-
-	// 🚀 Step 3: Panggil service untuk membuat data waktu
-	result, err := t.service.GetTime().Create(c, &request)
+	err := c.ShouldBindJSON(&request)
 	if err != nil {
-		// 🛑 Step 4: Jika ada error, kirim response error
+		// 🛑 Step 2: Jika ada error saat binding, kirim response error
 		response.HttpResponse(response.ParamHttpResp{
 			Code: http.StatusBadRequest,
 			Err:  err,
@@ -88,7 +85,37 @@ func (t *TimeController) Create(c *gin.Context) {
 		return
 	}
 
-	// ✅ Step 5: Jika data waktu berhasil dibuat, kirim response sukses
+	// 📜 Step 3: Validasi input menggunakan validator
+	validate := validator.New()
+	err = validate.Struct(request)
+	if err != nil {
+		// 🛑 Step 4: Jika ada error saat validasi, kirim response error
+		fmt.Println("❌ [ERROR-TIME-CONTROLLER] Gagal validasi input:", err)
+		errMessage := http.StatusText(http.StatusUnprocessableEntity)
+		errResponse := errValidation.ErrValidationResponse(err)
+		response.HttpResponse(response.ParamHttpResp{
+			Code:    http.StatusBadRequest,
+			Err:     err,
+			Message: &errMessage,
+			Data:    errResponse, // Detail kesalahan input
+			Gin:     c,
+		})
+		return
+	}
+
+	// 🚀 Step 5: Kirim request ke service untuk membuat data waktu baru
+	result, err := t.service.GetTime().Create(c, &request)
+	if err != nil {
+		// 🛑 Step 6: Jika ada error, kirim response error
+		response.HttpResponse(response.ParamHttpResp{
+			Code: http.StatusBadRequest,
+			Err:  err,
+			Gin:  c,
+		})
+		return
+	}
+
+	// ✅ Step 7: Jika data waktu berhasil dibuat, kirim response sukses
 	response.HttpResponse(response.ParamHttpResp{
 		Code: http.StatusCreated,
 		Gin:  c,

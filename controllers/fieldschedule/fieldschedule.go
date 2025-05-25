@@ -138,6 +138,8 @@ func (f *FieldScheduleController) GetAllByFieldIDAndDate(c *gin.Context) {
 		return
 	}
 
+	//parese UUID
+
 	// 🚀 Step 5: Panggil service dengan UUID dari path dan tanggal dari query
 	result, err := f.service.GetFieldSchedule().GetAllByFieldIDAndDate(c, c.Param("uuid"), params.Date)
 

@@ -23,16 +23,7 @@
             "signatureKey": ""
         }
     },
-    "gcsType" :"",
-    "gcsProjectID":"",
-    "gcsPrivateKeyID":"",
-    "gcsPrivateKey":"",
-    "gcsClientEmail":"",
-    "gcsClientID":"",
-    "gcsAuthURI":"",
-    "gcsTokenURI":"", 
-    "gcsAuthProviderX509CertURL":"",
-    "gcsClientX509CertURL":"",
-    "gcsBucketName":"",
-    "gcsUniverseDomain":""
+
+     "gcsCredentialPath": "",
+    "gcsBucketName":""
 }

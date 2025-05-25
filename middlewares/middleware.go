@@ -6,6 +6,7 @@
 package middlewares
 
 import (
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"field-service/clients"
@@ -115,42 +116,77 @@ func contains(roles []string, role string) bool {
 
 func CheckRole(roles []string, client clients.IClientRegistry) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		// 🛡️ Step 1: Log awal middleware CheckRole
+		fmt.Println("🛡️ [MIDDLEWARE-DEBUG-ROLE] Memulai middleware CheckRole")
+		fmt.Printf("📋 [MIDDLEWARE-DEBUG-ROLE] Daftar role yang diizinkan: %v\n", roles)
+
+		// 🔍 Step 2: Ambil data user dari token yang tersimpan di context
 		user, err := client.GetUser().GetUserByToken(c.Request.Context())
 		if err != nil {
-			fmt.Println("❌ [ERROR] Gagal mengambil data user:", err)
+			// ❌ Step 3: Jika gagal mendapatkan data user dari token
+			fmt.Printf("❌ [MIDDLEWARE-ERROR-ROLE] Gagal mengambil data user: %v\n", err)
+			// 📝 Step 3.1: Log konteks request untuk debugging
+			fmt.Printf("📦 [MIDDLEWARE-DEBUG-ROLE] Request context: %+v\n", c.Request.Context())
 			responseUnauthorized(c, errConstant.ErrUnauthorized.Error())
 			return
 		}
 
+		//📊 Step 4: Log data user yang berhasil diambil untuk debugging
+		fmt.Printf("📊 [MIDDLEWARE-DEBUG-ROLE] Data user dari token: UserID=%s, Role=%s\n", user.UUID, user.Role)
+
+		// 🧪 Step 5: Periksa apakah role user terdapat dalam daftar role yang diizinkan
 		if !contains(roles, user.Role) {
-			fmt.Println("❌ [ERROR] User tidak memiliki akses ke resource ini")
+			// ❌ Step 6: Jika role user tidak ada dalam daftar yang diizinkan
+			fmt.Printf("❌ [MIDDLEWARE-ERROR-ROLE] User (ID: %s) dengan role '%s' mencoba mengakses resource yang membutuhkan role %v\n",
+				user.UUID, user.Role, roles)
 			responseUnauthorized(c, errConstant.ErrUnauthorized.Error())
 			return
 		}
+
+		// ✅ Step 7: User memiliki role yang sesuai
+		fmt.Printf("✅ [MIDDLEWARE-SUCCESS-ROLE] User (ID: %s) dengan role '%s' diizinkan mengakses resource\n",
+			user.UUID, user.Role)
+
+		// 🚀 Step 8: Lanjut ke handler berikutnya
 		c.Next()
 	}
 }
 
 func Authenticate() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		fmt.Println("[DEBUG] Authenticate Middleware Kepanggil")
+		// 🛡️ Step 1: Log bahwa middleware terpanggil
+		fmt.Println("🛡️ [MIDDLEWARE-DEBUG-AUTH] Authenticate Middleware dipanggil")
+
+		// 🔍 Step 2: Ambil Authorization header
 		var err error
 		token := c.GetHeader("Authorization")
 		if token == "" {
-			fmt.Println("❌ [ERROR] Authorization header tidak ditemukan")
-			fmt.Println("Headers:", c.Request.Header)
+			// ❌ Step 3: Kalau Authorization header kosong
+			fmt.Println("❌ [MIDDLEWARE-ERROR-AUTH] Authorization header tidak ditemukan")
+			fmt.Printf("📦 [MIDDLEWARE-DEBUG-AUTH] Headers yang diterima: %+v\n", c.Request.Header)
 			responseUnauthorized(c, errConstant.ErrUnauthorized.Error())
 			return
 		}
 
+		// 🔐 Step 4: Validasi API Key dari header
 		err = validateAPIKey(c)
 		if err != nil {
-			fmt.Println("❌ [ERROR] Validasi API Key gagal:", err)
+			// ❌ Step 5: Jika validasi API Key gagal
+			fmt.Printf("❌ [ERROR-AUTH] Validasi API Key gagal: %v\n", err)
 			responseUnauthorized(c, err.Error())
 			return
 		}
-		fmt.Println("✅ [INFO] Bearer token valid")
-		fmt.Println("✅ [INFO] API Key valid")
+
+		// 🧪 Step 6: Ekstrak Bearer Token dan simpan di context
+		tokenString := extractBearerToken(token)
+		tokenUser := c.Request.WithContext(context.WithValue(c.Request.Context(), constants.Token, tokenString))
+		c.Request = tokenUser
+
+		// ✅ Step 7: Log jika semua validasi sukses
+		fmt.Println("✅ [INFO-AUTH] Bearer token valid")
+		fmt.Println("✅ [INFO-AUTH] API Key valid")
+
+		// 🚀 Step 8: Lanjut ke handler berikutnya
 		c.Next()
 	}
 }

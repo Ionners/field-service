@@ -11,27 +11,31 @@ import (
 var Config AppConfig
 
 type AppConfig struct {
-	Port                       int             `json:"port"`
-	AppName                    string          `json:"appName"`
-	AppEnv                     string          `json:"appEnv"`
-	SignatureKey               string          `json:"signatureKey"`
-	Database                   Database        `json:"database"`
-	EnableRateLimiter          bool            `json:"enableRateLimiter"`
-	RateLimiterMaxRequests     float64         `json:"rateLimiterMaxRequests"`
-	RateLimiterTimeSeconds     int             `json:"rateLimiterTimeSeconds"`
-	InternalService            InternalService `json:"internalService"`
-	GCSType                    string          `json:"gcsType"`
-	GCSProjectID               string          `json:"gcsProjectId"`
-	GCSPrivateKeyID            string          `json:"gcsPrivateKeyId"`
-	GCSPrivateKey              string          `json:"gcsPrivateKey"`
-	GCSClientEmail             string          `json:"gcsClientEmail"`
-	GCSClientId                string          `json:"gcsClientId"`
-	GCSAuthURI                 string          `json:"gcsAuthUri"`
-	GCSTokenURI                string          `json:"gcsTokenUri"`
-	GCSAuthProviderX509CertUrl string          `json:"gcsAuthProviderX509CertUrl"`
-	GCSClientX509CertUrl       string          `json:"gcsClientX509CertUrl"`
-	GCSBucketName              string          `json:"gcsBucketName"`
-	GCSUniverseDomain          string          `json:"gcsUniverseDomain"`
+	Port                   int             `json:"port"`
+	AppName                string          `json:"appName"`
+	AppEnv                 string          `json:"appEnv"`
+	SignatureKey           string          `json:"signatureKey"`
+	Database               Database        `json:"database"`
+	EnableRateLimiter      bool            `json:"enableRateLimiter"`
+	RateLimiterMaxRequests float64         `json:"rateLimiterMaxRequests"`
+	RateLimiterTimeSeconds int             `json:"rateLimiterTimeSeconds"`
+	InternalService        InternalService `json:"internalService"`
+	// GCSType                    string          `json:"gcsType"`
+	// GCSProjectID               string          `json:"gcsProjectID"`
+	// GCSPrivateKeyID            string          `json:"gcsPrivateKeyID"`
+	// GCSPrivateKey              string          `json:"gcsPrivateKey"`
+	// GCSClientEmail             string          `json:"gcsClientEmail"`
+	// GCSClientId                string          `json:"gcsClientID"`
+	// GCSAuthURI                 string          `json:"gcsAuthURI"`
+	// GCSTokenURI                string          `json:"gcsTokenURI"`
+	// GCSAuthProviderX509CertUrl string          `json:"gcsAuthProviderX509CertURL"`
+	// GCSClientX509CertUrl       string          `json:"gcsClientX509CertURL"`
+	// GCSBucketName              string          `json:"gcsBucketName"`
+	// GCSUniverseDomain          string          `json:"gcsUniverseDomain"`
+
+	//GCS config yang tadi sudah di definisikan di config.json
+	GCSCredentialPath string `json:"gcsCredentialPath"`
+	GCSBucketName     string `json:"gcsBucketName"`
 }
 
 type Database struct {

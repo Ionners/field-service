@@ -39,6 +39,7 @@ func (f *FieldScheduleService) GetAllWithPagination(
 ) (*util.PaginationResult, error) {
 	// 🚀 [DEBUG-FIELD-SCHEDULE-SERVICE] Mulai function GetAllWithPagination
 	fmt.Println("🚀 [DEBUG-FIELD-SCHEDULE-SERVICE] Start GetAllWithPagination")
+	fmt.Printf("📍 [[DEBUG-FIELD-SCHEDULE-SERVICE] Repository nil? %v\n", f.repository == nil)
 	fmt.Printf("📥 [DEBUG-FIELD-SCHEDULE-SERVICE] Param request: %+v\n", param)
 
 	// 1️⃣ Ambil semua fieldSchedule pakai pagination (limit + page)
@@ -197,6 +198,7 @@ func (f *FieldScheduleService) GetByUUID(ctx context.Context, uuid string) (*dto
 		PricePerHour: fieldSchedule.Field.PricePerHour,
 		Date:         fieldSchedule.Date.Format(time.DateOnly),
 		Status:       fieldSchedule.Status.GetStatusString(),
+		Time:         fmt.Sprintf("%s - %s", fieldSchedule.Time.StartTime, fieldSchedule.Time.EndTime),
 		CreatedAt:    fieldSchedule.CreatedAt,
 		UpdatedAt:    fieldSchedule.UpdatedAt,
 	}

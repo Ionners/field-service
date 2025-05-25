@@ -1,5 +1,7 @@
 package constants
 
+type ContextKey string
+
 const (
-	Token = "token"
+	Token ContextKey = "token"
 )

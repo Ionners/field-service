@@ -11,9 +11,10 @@ package gcs
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
+	"os"
+	"path/filepath"
 	"time"
 
 	"cloud.google.com/go/storage"
@@ -21,51 +22,63 @@ import (
 	"google.golang.org/api/option"
 )
 
-type ServiceAccountKeyJSON struct {
-	Type                    string `json:"type"`
-	ProjectID               string `json:"project_id"`
-	PrivateKeyID            string `json:"private_key_id"`
-	PrivateKey              string `json:"private_key"`
-	ClientEmail             string `json:"client_email"`
-	ClientID                string `json:"client_id"`
-	AuthURI                 string `json:"auth_uri"`
-	TokenURI                string `json:"token_uri"`
-	AuthProviderX509CertURL string `json:"auth_provider_x509_cert_url"`
-	ClientX509CertURL       string `json:"client_x509_cert_url"`
-	UniverseDomain          string `json:"universe_domain"`
-}
+// type ServiceAccountKeyJSON struct {
+// 	Type                    string `json:"type"`
+// 	ProjectID               string `json:"project_id"`
+// 	PrivateKeyID            string `json:"private_key_id"`
+// 	PrivateKey              string `json:"private_key"`
+// 	ClientEmail             string `json:"client_email"`
+// 	ClientID                string `json:"client_id"`
+// 	AuthURI                 string `json:"auth_uri"`
+// 	TokenURI                string `json:"token_uri"`
+// 	AuthProviderX509CertURL string `json:"auth_provider_x509_cert_url"`
+// 	ClientX509CertURL       string `json:"client_x509_cert_url"`
+// 	UniverseDomain          string `json:"universe_domain"`
+// }
 
 type GCSClient struct {
-	ServiceAccountKeyJSON ServiceAccountKeyJSON
-	BucketName            string
+	BucketName     string
+	CredentialPath string
 }
 
 type IGCSClient interface {
 	UploadFile(context.Context, string, []byte) (string, error)
 }
 
-func NewGCSClient(serviceAccountKeyJSON ServiceAccountKeyJSON, bucketName string) IGCSClient {
+func NewGCSClient(credentialPath string, bucketName string) IGCSClient {
+	absPath, err := filepath.Abs(credentialPath)
+	if err != nil {
+		logrus.Warnf("⚠️ Gagal konversi ke path absolut: %v", err)
+		absPath = credentialPath // fallback
+	}
+	logrus.Infof("🔍 [DEBUG] Credential path: %s", absPath)
 	return &GCSClient{
-		ServiceAccountKeyJSON: serviceAccountKeyJSON,
-		BucketName:            bucketName,
+		CredentialPath: absPath,
+		BucketName:     bucketName,
 	}
 }
 
 func (g *GCSClient) createClient(ctx context.Context) (*storage.Client, error) {
-	reqBodyBytes := new(bytes.Buffer)
-	err := json.NewEncoder(reqBodyBytes).Encode(g.ServiceAccountKeyJSON)
+	// 🧩 Step 1: Ambil path file credential dari struct
+	fmt.Printf("🧩 [GCS-CLIENT] Step 1: Menggunakan credential path: %s", g.CredentialPath)
+
+	content, err := os.ReadFile(g.CredentialPath)
 	if err != nil {
-		logrus.Error("Failed to encode service account key JSON: ", err)
+		fmt.Printf("❌ [GCS-DEBUG] Gagal membaca file credential: %v", err)
+	} else {
+		fmt.Printf("📄 [GCS-DEBUG] First 100 chars of credential: %s", string(content[:100]))
+	}
+
+	// 🛠️ Step 2: Coba buat GCS client dengan credential file
+	client, err := storage.NewClient(ctx, option.WithCredentialsFile(g.CredentialPath))
+	if err != nil {
+		// ❌ Step 3: Jika gagal, log dan return error
+		fmt.Printf("❌ [GCS-CLIENT] Gagal membuat client dari credential path: %s. Error: %v", g.CredentialPath, err)
 		return nil, err
 	}
 
-	jsonByte := reqBodyBytes.Bytes()
-	client, err := storage.NewClient(ctx, option.WithCredentialsJSON(jsonByte))
-	if err != nil {
-		logrus.Error("Failed to create GCS client: ", err)
-		return nil, err
-	}
-
+	// ✅ Step 4: Client berhasil dibuat, return client
+	fmt.Printf("✅ [GCS-CLIENT] Berhasil membuat GCS client.")
 	return client, nil
 }
 

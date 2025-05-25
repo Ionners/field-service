@@ -45,7 +45,6 @@ func (f *FieldRoute) Run() {
 
 	// 🛣️ [GET] Endpoint untuk mendapatkan semua field dengan pagination
 	// Middleware Authenticate() untuk memeriksa token dan role
-	// Middleware CheckRole untuk memeriksa role user
 	// Hanya role Admin dan Customer yang bisa mengakses endpoint ini
 	group.GET("/pagination", middlewares.CheckRole([]string{
 		constants.Admin,

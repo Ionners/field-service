@@ -158,13 +158,16 @@ func (f *FieldController) Create(c *gin.Context) {
 			Err:  err,
 			Gin:  c,
 		})
-		fmt.Printf("📥 [DEBUG-FIELD-CONTROLLER] Jumlah file images: %v\n", len(request.Images))
+
 		return
 	}
 
 	// ✅ Debug log untuk input yang diterima
-	fmt.Printf("📥 [DEBUG-FIELD-CONTROLLER] Jumlah file images: %v\n", len(request.Images))
-	fmt.Printf("📥 [DEBUG-FIELD-CONTROLLER] Request input: %+v\n", request)
+	// ✅ Debug setiap field
+	fmt.Println("🔍 [CONTROLLER-DEBUG-FUNC-CREATE] Code:", request.Code)
+	fmt.Println("🔍 [CONTROLLER-DEBUG-FUNC-CREATE] Name:", request.Name)
+	fmt.Println("🔍 [CONTROLLER-DEBUG-FUNC-CREATE] PricePerHour:", request.PricePerHour)
+	// fmt.Println("🔍 [CONTROLLER-DEBUG-FUNC-CREATE] Images:", len(request.Images))
 
 	// ✅ Step 4: Validasi input menggunakan validator (cth: wajib diisi, panjang maksimal, dsb)
 

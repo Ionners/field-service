@@ -16,7 +16,7 @@ type UserClient struct {
 }
 
 type IUserClient interface {
-	GetUserByToken(ctx context.Context) (*UserData, error)
+	GetUserByToken(context.Context) (*UserData, error)
 }
 
 func NewUserClient(client config.IClientConfig) IUserClient {
@@ -44,6 +44,7 @@ func (u *UserClient) GetUserByToken(ctx context.Context) (*UserData, error) {
 		Set(constants.XserviceName, config2.Config.AppName).
 		Set(constants.XRequestAt, fmt.Sprintf("%d", unixTime)).
 		Get(fmt.Sprintf("%s/api/v1/auth/user", u.client.BaseURL()))
+	fmt.Println("📡 [CLIENTS-USER-DEBUG] AuthService BaseURL:", u.client.BaseURL())
 
 	resp, _, errs := request.EndStruct(&response)
 	if len(errs) > 0 {

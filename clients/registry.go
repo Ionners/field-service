@@ -4,6 +4,7 @@ import (
 	"field-service/clients/config"
 	clients "field-service/clients/user"
 	config2 "field-service/config"
+	"fmt"
 )
 
 type ClientRegistry struct {
@@ -18,6 +19,9 @@ func NewClientRegistry() IClientRegistry {
 }
 
 func (c *ClientRegistry) GetUser() clients.IUserClient {
+	fmt.Println("📦 [CLIENT-REGISTRY-INIT] AuthService BaseURL:", config2.Config.InternalService.User.Host)
+	fmt.Println("📦 [CLIENT-REGISTRY-INIT] SignatureKey:", config2.Config.InternalService.User.SignatureKey)
+
 	return clients.NewUserClient(
 		config.NewClientConfig(
 			config.WithBaseURL(config2.Config.InternalService.User.Host),

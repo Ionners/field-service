@@ -41,7 +41,7 @@ func GeneratePagination(params PaginationParam) PaginationResult {
 		previousPage int
 	)
 
-	if params.Page > totalPage {
+	if params.Page < totalPage {
 		nextPage = params.Page + 1
 	}
 

@@ -6,6 +6,7 @@ import (
 	fieldService "field-service/services/field"
 	fieldScheduleService "field-service/services/fieldschedule"
 	timeService "field-service/services/time"
+	"fmt"
 )
 
 type Registry struct {
@@ -20,6 +21,12 @@ type IServiceRegistry interface {
 }
 
 func NewServiceRegistry(repository repositories.IRepositoryRegistry, gcs gcs.IGCSClient) IServiceRegistry {
+	if repository == nil {
+		fmt.Println("❌ [REGISTRY-SERVICE-ERROR] FieldService: repo is nil")
+	}
+	if repository.GetField() == nil {
+		fmt.Println("❌ [REGISTRY-SERVICE-ERROR] FieldService: repo.GetField() is nil")
+	}
 	return &Registry{
 		repository: repository,
 		gcs:        gcs,

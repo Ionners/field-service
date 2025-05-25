@@ -3,3 +3,6 @@ bin
 
 .env
 config.json
+
+/tmp/
+*.log

@@ -9,7 +9,7 @@ import (
 
 func main() {
 	serviceName := "field-service"
-	signatureKay := "XreDM6yqX3y8o2CzzABa2Q=="
+	signatureKay := "OozDxGtWx79CMjAUC775"
 	requestAt := fmt.Sprintf("%d", time.Now().Unix())
 
 	raw := fmt.Sprintf("%s:%s:%s", serviceName, signatureKay, requestAt)

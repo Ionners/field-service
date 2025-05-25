@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"encoding/base64"
 	"field-service/clients"
 	"field-service/common/gcs"
 	"field-service/common/response"
@@ -53,7 +52,7 @@ var command = &cobra.Command{
 			panic(err)
 		}
 
-		gcs := initGCS()
+		gcs := gcs.NewGCSClient(config.Config.GCSCredentialPath, config.Config.GCSBucketName)
 		client := clients.NewClientRegistry()
 
 		repository := repositories.NewRepositoryRegistry(db)
@@ -107,30 +106,30 @@ func Run() {
 	}
 }
 
-func initGCS() gcs.IGCSClient {
-	decode, err := base64.StdEncoding.DecodeString(config.Config.SignatureKey)
-	if err != nil {
-		panic(err)
-	}
+// func initGCS() gcs.IGCSClient {
+// 	decode, err := base64.StdEncoding.DecodeString(config.Config.SignatureKey)
+// 	if err != nil {
+// 		panic(err)
+// 	}
 
-	stringPrivateKey := string(decode)
-	gcsServiceAccount := gcs.ServiceAccountKeyJSON{
-		Type:                    config.Config.GCSType,
-		ProjectID:               config.Config.GCSProjectID,
-		PrivateKeyID:            config.Config.GCSPrivateKeyID,
-		PrivateKey:              stringPrivateKey,
-		ClientEmail:             config.Config.GCSClientEmail,
-		ClientID:                config.Config.GCSClientId,
-		AuthURI:                 config.Config.GCSAuthURI,
-		TokenURI:                config.Config.GCSTokenURI,
-		AuthProviderX509CertURL: config.Config.GCSAuthProviderX509CertUrl,
-		ClientX509CertURL:       config.Config.GCSClientX509CertUrl,
-		UniverseDomain:          config.Config.GCSUniverseDomain,
-	}
+// 	stringPrivateKey := string(decode)
+// 	gcsServiceAccount := gcs.ServiceAccountKeyJSON{
+// 		Type:                    config.Config.GCSType,
+// 		ProjectID:               config.Config.GCSProjectID,
+// 		PrivateKeyID:            config.Config.GCSPrivateKeyID,
+// 		PrivateKey:              stringPrivateKey,
+// 		ClientEmail:             config.Config.GCSClientEmail,
+// 		ClientID:                config.Config.GCSClientId,
+// 		AuthURI:                 config.Config.GCSAuthURI,
+// 		TokenURI:                config.Config.GCSTokenURI,
+// 		AuthProviderX509CertURL: config.Config.GCSAuthProviderX509CertUrl,
+// 		ClientX509CertURL:       config.Config.GCSClientX509CertUrl,
+// 		UniverseDomain:          config.Config.GCSUniverseDomain,
+// 	}
 
-	gcsClient := gcs.NewGCSClient(
-		gcsServiceAccount,
-		config.Config.GCSBucketName)
+// 	gcsClient := gcs.NewGCSClient(
+// 		gcsServiceAccount,
+// 		config.Config.GCSBucketName)
 
-	return gcsClient
-}
+// 	return gcsClient
+// }

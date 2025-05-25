@@ -14,6 +14,8 @@ import (
 	"mime/multipart"
 	"path"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type FieldService struct {
@@ -38,6 +40,7 @@ func (f *FieldService) GetAllWithPagination(
 	ctx context.Context,
 	param *dto.FieldRequestParam,
 ) (*util.PaginationResult, error) {
+
 	fmt.Println("🔍 [DEBUG-FIELD-SERVICE] GetAllWithPagination")
 	fields, total, err := f.repository.GetField().FindAllWithPagination(ctx, param)
 	if err != nil {
@@ -45,7 +48,7 @@ func (f *FieldService) GetAllWithPagination(
 		return nil, err
 	}
 
-	fieldResults := make([]dto.FieldResponse, 0)
+	fieldResults := make([]dto.FieldResponse, 0, len(fields))
 	for _, field := range fields {
 		fieldResults = append(fieldResults, dto.FieldResponse{
 			UUID:         field.UUID,
@@ -177,6 +180,13 @@ func (f *FieldService) uploadImage(ctx context.Context, images []multipart.FileH
 }
 
 func (f *FieldService) Create(ctx context.Context, request *dto.FieldRequest) (*dto.FieldResponse, error) {
+	// 🔍 Debug semua isi request (cek input dari controller)
+	fmt.Printf("🔍 [DEBUG-FIELD-SERVICE] Incoming request: %+v\n", request.Code)
+	fmt.Printf("🔍 [DEBUG-FIELD-SERVICE] Incoming request: %+v\n", request.Name)
+	fmt.Printf("🔍 [DEBUG-FIELD-SERVICE] Incoming request: %+v\n", request.PricePerHour)
+
+	// 🔍 Debug khusus field Images
+	fmt.Printf("🔍 [DEBUG-FIELD-SERVICE] Images data: %+v\n", len(request.Images))
 	imageUrl, err := f.uploadImage(ctx, request.Images)
 	if err != nil {
 		fmt.Println("🔍 [DEBUG-FIELD-SERVICE] Create", err)
@@ -207,8 +217,8 @@ func (f *FieldService) Create(ctx context.Context, request *dto.FieldRequest) (*
 	return &response, nil
 }
 
-func (f *FieldService) Update(ctx context.Context, uuid string, req *dto.UpdateFieldRequest) (*dto.FieldResponse, error) {
-	field, err := f.repository.GetField().FindByUUID(ctx, uuid)
+func (f *FieldService) Update(ctx context.Context, uuidParam string, req *dto.UpdateFieldRequest) (*dto.FieldResponse, error) {
+	field, err := f.repository.GetField().FindByUUID(ctx, uuidParam)
 	if err != nil {
 		fmt.Println("🔍 [DEBUG-FIELD-SERVICE] Update", err)
 		return nil, err
@@ -225,7 +235,7 @@ func (f *FieldService) Update(ctx context.Context, uuid string, req *dto.UpdateF
 		}
 	}
 
-	fieldResult, err := f.repository.GetField().Update(ctx, uuid, &models.Field{
+	fieldResult, err := f.repository.GetField().Update(ctx, uuidParam, &models.Field{
 		Code:         req.Code,
 		Name:         req.Name,
 		PricePerHour: req.PricePerHour,
@@ -235,8 +245,9 @@ func (f *FieldService) Update(ctx context.Context, uuid string, req *dto.UpdateF
 		return nil, err
 	}
 
+	uuidParsed, _ := uuid.Parse(uuidParam)
 	return &dto.FieldResponse{
-		UUID:         fieldResult.UUID,
+		UUID:         uuidParsed,
 		Code:         fieldResult.Code,
 		Name:         fieldResult.Name,
 		PricePerHour: fieldResult.PricePerHour,

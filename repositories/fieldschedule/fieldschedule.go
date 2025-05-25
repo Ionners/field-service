@@ -43,8 +43,8 @@ func (f *FieldScheduleRepository) FindAllWithPagination(
 		total          int64
 	)
 
-	fmt.Println("🔍 [DEBUG-REPOSITORIES] Sort Column:", *param.SortColumn)
-	fmt.Println("🔍 [DEBUG-REPOSITORIES] Sort Order:", *param.SortOrder)
+	fmt.Println("🔍 [DEBUG-REPOSITORIES] Sort Column:", param.SortColumn)
+	fmt.Println("🔍 [DEBUG-REPOSITORIES] Sort Order:", param.SortOrder)
 	if param.SortColumn != nil {
 		fmt.Println("🔍 [DEBUG-REPOSITORIES] Sort Column ada, menggunakan:", *param.SortColumn, *param.SortOrder)
 		sort = fmt.Sprintf("%s %s", *param.SortColumn, *param.SortOrder)
@@ -161,7 +161,7 @@ func (f *FieldScheduleRepository) FindByDateAndTimeID(
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			fmt.Println("❌ [ERROR-REPOSITORIES] Data field tidak ditemukan")
-			return nil, errWrap.WrapError(errFieldSchedule.ErrFieldScheduleNotFound)
+			return nil, nil
 		}
 		fmt.Println("❌ [ERROR-REPOSITORIES] Gagal mengambil data field:", err)
 		return nil, errWrap.WrapError((errConstant.ErrSQLError))
